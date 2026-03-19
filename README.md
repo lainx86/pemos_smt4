@@ -1,4 +1,4 @@
-# Praktikum Pemodelan Oseanografi Semester # 
+# Praktikum Pemodelan Oseanografi Semester 4 
 ## Feby Syarief Al A`raaf
 ## 26050124130087
 ## Oseanografi C
