@@ -4,7 +4,7 @@ clear; clc; close all;
 % 26050124130087
 % Oseanografi C
 %
-% Simulasi adveksi/difusi 1 dimensi metode Crank-Nicolson
+% Simulasi adveksi 1 dimensi metode Crank-Nicolson
 % Sumber polutan diskontinu
 % Grafik: konsentrasi polutan terhadap waktu
 % NIM = 087, sehingga:

@@ -4,7 +4,7 @@ clear; clc; close all;
 % 26050124130087
 % Oseanografi C
 %
-% Simulasi difusi/adveksi 1 dimensi metode FTCS
+% Simulasi adveksi 1 dimensi metode FTCS
 % Sumber polutan kontinu
 % NIM = 087, sehingga:
 % x = 0, y = 8, z = 7
