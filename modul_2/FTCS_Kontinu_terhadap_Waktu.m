@@ -6,7 +6,7 @@ clear; clc; close all;
 %
 % Simulasi adveksi 1 dimensi metode FTCS
 % Sumber polutan kontinu
-% Grafik: konsentrasi polutan terhadap ruang
+% Grafik: konsentrasi polutan terhadap waktu
 % NIM = 087, sehingga:
 % x = 0, y = 8, z = 7
 % Konsentrasi sumber = 10*z = 70 mg/L
