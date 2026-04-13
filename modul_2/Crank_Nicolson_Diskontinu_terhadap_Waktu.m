@@ -66,7 +66,7 @@ for s = 1:numel(scenario)
     t_step = 0:Nmax;
     t_time = t_step * dt;
 
-    rv = [1 3 5 7 9 11 13];
+    rv = [1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41];
     rv_valid = rv(rv >= 1 & rv <= Mmax);
 
     if length(rv_valid) < length(rv)

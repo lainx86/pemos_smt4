@@ -68,7 +68,7 @@ for s = 1:numel(scenario)
     x_grid = 0:(Mmax - 1);
     x_pos  = x_grid * dx;
 
-    tv = [5 7 9 11 13 15 17];
+    tv = [150 156 162 168 180 240 300];
     tv_valid = tv(tv >= 0 & tv <= T);
     n_plot = round(tv_valid / dt) + 1;
 

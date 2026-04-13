@@ -83,7 +83,7 @@ for s = 1:numel(scenario)
 
     F = zeros(nmax, mmax);
 
-    rv = [10 12 14 16 19 21 23];
+    rv = [10 12 14 16 19 21 23 25 27 29 31 33 35 37 39 41];
     rv_valid = rv(rv >= 1 & rv <= mmax);
 
     if length(rv_valid) < length(rv)

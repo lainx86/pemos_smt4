@@ -75,7 +75,7 @@ for s = 1:numel(scenario)
     F = zeros(nmax, mmax);
 
     tv = [60 180 360 500 800 1160];
-    rv = [10 12 14 16 19 21 23];
+    rv = [10 12 14 16 19 21 23 25 29 31 33 35 37 39 41];
 
     rv_valid = rv(rv >= 1 & rv <= mmax);
 
