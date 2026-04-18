@@ -5,20 +5,8 @@ clear; clc; close all;
 % Oseanografi C
 %
 % Simulasi persamaan adveksi-difusi 1 dimensi dengan metode FTCS
-% Konsentrasi polutan terhadap ruang pada beberapa waktu tertentu
-%
-% Catatan ilmiah:
-% Pada script ini, "sumber polutan kontinu" dimodelkan sebagai
-% titik grid internal dengan konsentrasi tetap (internal Dirichlet source),
-% bukan sebagai source term eksplisit S(x,t).
-%
-% Persamaan yang disimulasikan:
-% dC/dt + u dC/dx = D d2C/dx2
-%
-% Skema FTCS:
-% C_i^(n+1) = C_i^n
-%           - (u dt / (2 dx)) (C_(i+1)^n - C_(i-1)^n)
-%           + (D dt / dx^2)   (C_(i+1)^n - 2C_i^n + C_(i-1)^n)
+% Sumber grid polutan kontinu
+% Grafik terhadap ruang
 
 x_digit = 0;
 y_digit = 8;
