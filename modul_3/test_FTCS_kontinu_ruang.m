@@ -7,17 +7,13 @@ clear; clc; close all;
 % Simulasi adveksi-difusi 1 dimensi dengan metode FTCS
 % Sumber polutan kontinu
 % Grafik: konsentrasi polutan terhadap ruang
-% NIM ganjil, xyz = 087, sehingga:
-% x = 0, y = 8, z = 7
-% u_xyz = 0.780 m/s
-% Konsentrasi sumber = 10*z = 70 mg/L
 
 x_digit = 0;
 y_digit = 8;
 z_digit = 7;
 
 u_xyz    = 0.780;
-C_source = 10 * z_digit;
+C_source = 10 * z_digit;   % = 70 mg/L
 
 % Waktu yang akan diplot (dalam indeks langkah waktu n)
 n_plot = [0, ...
@@ -25,79 +21,43 @@ n_plot = [0, ...
           50 + z_digit, 100 + z_digit, 200 + z_digit, 300 + z_digit, ...
           500 + z_digit, 800 + z_digit, 1000 + z_digit];
 
+% === PARAMETER DOMAIN (dari tabel) ===
 L = 3000;   % panjang domain (m)
-T = 10800;  % waktu simulasi (s)
+T = 7200;   % waktu simulasi (s)  <-- diubah dari 10800 ke 7200
 
+% Grid sumber polutan kontinu = 15+z
+m_kontinu = 15 + z_digit;   % = 22
+
+% === SKENARIO (dari tabel) ===
 scenario(1).nama = 'Skenario 1';
 scenario(1).dx   = 30;
-scenario(1).dt   = 8;
-scenario(1).u    = u_xyz;
-scenario(1).D    = 0.05;
-scenario(1).m    = 30 + z_digit;
+scenario(1).dt   = 6;        % diubah dari 8 ke 6
+scenario(1).u    = 0.5;      % diubah
+scenario(1).D    = 4.0;      % diubah
+scenario(1).m    = m_kontinu;
 
 scenario(2).nama = 'Skenario 2';
-scenario(2).dx   = 60;
-scenario(2).dt   = 8;
-scenario(2).u    = u_xyz;
-scenario(2).D    = 0.05;
-scenario(2).m    = 60 + z_digit;
+scenario(2).dx   = 30;
+scenario(2).dt   = 6;
+scenario(2).u    = 0.1;
+scenario(2).D    = 2.0;
+scenario(2).m    = m_kontinu;
 
 scenario(3).nama = 'Skenario 3';
-scenario(3).dx   = 15;
-scenario(3).dt   = 8;
-scenario(3).u    = u_xyz;
-scenario(3).D    = 0.05;
-scenario(3).m    = 15 + z_digit;
+scenario(3).dx   = 30;
+scenario(3).dt   = 6;
+scenario(3).u    = 0.5;
+scenario(3).D    = 2.0;
+scenario(3).m    = m_kontinu;
 
 scenario(4).nama = 'Skenario 4';
 scenario(4).dx   = 30;
-scenario(4).dt   = 8;
-scenario(4).u    = 0.5 * u_xyz;
-scenario(4).D    = 0.05;
-scenario(4).m    = 30 + z_digit;
+scenario(4).dt   = 6;
+scenario(4).u    = 0.1;
+scenario(4).D    = 4.0;
+scenario(4).m    = m_kontinu;
 
-scenario(5).nama = 'Skenario 5';
-scenario(5).dx   = 30;
-scenario(5).dt   = 8;
-scenario(5).u    = 2 * u_xyz;
-scenario(5).D    = 0.05;
-scenario(5).m    = 30 + z_digit;
-
-scenario(6).nama = 'Skenario 6';
-scenario(6).dx   = 30;
-scenario(6).dt   = 8;
-scenario(6).u    = -u_xyz;
-scenario(6).D    = 0.05;
-scenario(6).m    = 30 + z_digit;
-
-scenario(7).nama = 'Skenario 7';
-scenario(7).dx   = 30;
-scenario(7).dt   = 2;
-scenario(7).u    = u_xyz;
-scenario(7).D    = 0.05;
-scenario(7).m    = 30 + z_digit;
-
-scenario(8).nama = 'Skenario 8';
-scenario(8).dx   = 30;
-scenario(8).dt   = 16;
-scenario(8).u    = u_xyz;
-scenario(8).D    = 0.05;
-scenario(8).m    = 30 + z_digit;
-
-scenario(9).nama = 'Skenario 9';
-scenario(9).dx   = 30;
-scenario(9).dt   = 8;
-scenario(9).u    = u_xyz;
-scenario(9).D    = 0.50;
-scenario(9).m    = 30 + z_digit;
-
-scenario(10).nama = 'Skenario 10';
-scenario(10).dx   = 30;
-scenario(10).dt   = 8;
-scenario(10).u    = u_xyz;
-scenario(10).D    = 1.00;
-scenario(10).m    = 30 + z_digit;
-
+% === OUTPUT ===
 folder_output = 'output_Kontinu_FTCS_Adveksi_Difusi_Terhadap_Ruang';
 if ~exist(folder_output, 'dir')
     mkdir(folder_output);
@@ -117,7 +77,7 @@ for s = 1:numel(scenario)
     t_grid  = 0:dt:T;
 
     Mmax = length(x_space);
-    Nmax = length(t_grid) - 1;   % jumlah langkah waktu
+    Nmax = length(t_grid) - 1;
 
     courant = u * dt / dx;
     alpha   = D * dt / dx^2;
@@ -148,7 +108,6 @@ for s = 1:numel(scenario)
 
     snapshot = NaN(length(n_plot), Mmax);
 
-    % kondisi awal
     F0(:) = 0;
     F0(m_source) = C_source;
 
@@ -159,11 +118,8 @@ for s = 1:numel(scenario)
 
     for J = 1:Nmax
 
-        % kondisi batas sebelum update
         F0(1)    = F0(2);
         F0(Mmax) = F0(Mmax - 1);
-
-        % sumber kontinu
         F0(m_source) = C_source;
 
         for i = 2:(Mmax - 1)
@@ -176,11 +132,8 @@ for s = 1:numel(scenario)
             end
         end
 
-        % kondisi batas sesudah update
         F(1)    = F(2);
         F(Mmax) = F(Mmax - 1);
-
-        % sumber tetap kontinu
         F(m_source) = C_source;
 
         idx_snap = find(n_plot == J, 1);
@@ -197,11 +150,9 @@ for s = 1:numel(scenario)
     legend_text = {};
 
     for k = 1:length(n_plot)
-
         if all(isnan(snapshot(k, :)))
             continue;
         end
-
         plot(x_space, snapshot(k, :), 'LineWidth', 1.2);
         legend_text{end + 1} = sprintf('n = %d', n_plot(k));
     end
@@ -221,13 +172,8 @@ for s = 1:numel(scenario)
     end
 
     set(gca, 'FontSize', 11);
-
-    legend(legend_text, ...
-           'Location', 'northwest', ...
-           'FontSize', 8, ...
-           'NumColumns', 2, ...
-           'Box', 'on');
-
+    legend(legend_text, 'Location', 'northwest', 'FontSize', 8, ...
+           'NumColumns', 2, 'Box', 'on');
     hold off;
 
     nama_file = sprintf('ftcs_adveksi_difusi_ruang_skenario_%d.png', s);
