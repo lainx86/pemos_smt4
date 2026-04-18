@@ -1,0 +1,187 @@
+clear; clc; close all;
+
+% Feby Syarief Al A`raaf
+% 26050124130087
+% Oseanografi C
+%
+% Simulasi persamaan adveksi-difusi 1 dimensi dengan metode Crank-Nicolson
+% Sumber grid polutan diskontinu
+% Grafik terhadap ruang
+
+x_digit = 0;
+y_digit = 8;
+z_digit = 7;
+
+C_source = 10 * z_digit;
+
+n_plot = [0 300 600 900 1200];
+
+L = 3000;
+T = 7200;
+
+m_diskontinu = [20 + z_digit, 15 + z_digit];
+
+scenario(1).nama = 'Skenario 1';
+scenario(1).dx   = 30;
+scenario(1).dt   = 6;
+scenario(1).u    = 0.5;
+scenario(1).D    = 4.0;
+scenario(1).m    = m_diskontinu;
+
+scenario(2).nama = 'Skenario 2';
+scenario(2).dx   = 30;
+scenario(2).dt   = 6;
+scenario(2).u    = 0.1;
+scenario(2).D    = 2.0;
+scenario(2).m    = m_diskontinu;
+
+scenario(3).nama = 'Skenario 3';
+scenario(3).dx   = 30;
+scenario(3).dt   = 6;
+scenario(3).u    = 0.5;
+scenario(3).D    = 2.0;
+scenario(3).m    = m_diskontinu;
+
+scenario(4).nama = 'Skenario 4';
+scenario(4).dx   = 30;
+scenario(4).dt   = 6;
+scenario(4).u    = 0.1;
+scenario(4).D    = 4.0;
+scenario(4).m    = m_diskontinu;
+
+folder_output = 'output_Diskontinu_CrankNicolson_Adveksi_Difusi_Terhadap_Ruang';
+if ~exist(folder_output, 'dir')
+    mkdir(folder_output);
+end
+
+for s = 1:numel(scenario)
+
+    fprintf('\n==================================================\n');
+    fprintf('Memproses %s\n', scenario(s).nama);
+
+    dx       = scenario(s).dx;
+    dt       = scenario(s).dt;
+    u        = scenario(s).u;
+    D        = scenario(s).D;
+    m_source = scenario(s).m;
+
+    x_space = 0:dx:L;
+    t_grid  = 0:dt:T;
+
+    Mmax = length(x_space);
+    Nmax = length(t_grid) - 1;
+
+    courant = u * dt / dx;
+    alpha   = D * dt / dx^2;
+
+    a = u * dt / (4 * dx);
+    b = D * dt / (2 * dx^2);
+
+    fprintf('dx = %.3f m, dt = %.3f s, u = %.3f m/s, D = %.3f m^2/s, m = %s\n', ...
+        dx, dt, u, D, mat2str(m_source));
+    fprintf('Mmax = %d, Nmax = %d\n', Mmax, Nmax);
+    fprintf('Courant = %.6f, alpha = %.6f\n', courant, alpha);
+
+    if any(m_source < 2) || any(m_source > Mmax - 1)
+        fprintf('%s tidak dapat diproses karena titik sumber terlalu dekat dengan batas/domain tidak valid.\n', ...
+            scenario(s).nama);
+        continue;
+    end
+
+    if any(n_plot > Nmax)
+        n_tidak_valid = n_plot(n_plot > Nmax);
+        fprintf('%s: n = %s melebihi Nmax = %d, sehingga tidak digrafikkan.\n', ...
+            scenario(s).nama, mat2str(n_tidak_valid), Nmax);
+    end
+
+    C_old = zeros(Mmax, 1);
+    C_new = zeros(Mmax, 1);
+
+    snapshot = NaN(length(n_plot), Mmax);
+
+    A = zeros(Mmax, Mmax);
+    B = zeros(Mmax, Mmax);
+
+    A(1, 1) = 1;
+    A(1, 2) = -1;
+    A(Mmax, Mmax - 1) = -1;
+    A(Mmax, Mmax) = 1;
+
+    for i = 2:(Mmax - 1)
+        A(i, i - 1) = -a - b;
+        A(i, i)     = 1 + 2 * b;
+        A(i, i + 1) =  a - b;
+
+        B(i, i - 1) =  a + b;
+        B(i, i)     = 1 - 2 * b;
+        B(i, i + 1) = -a + b;
+    end
+
+    C_old(m_source) = C_source;
+
+    idx0 = find(n_plot == 0, 1);
+    if ~isempty(idx0)
+        snapshot(idx0, :) = C_old.';
+    end
+
+    for n = 1:Nmax
+
+        rhs = B * C_old;
+        rhs(1) = 0;
+        rhs(Mmax) = 0;
+
+        C_new = A \ rhs;
+
+        idx_snap = find(n_plot == n, 1);
+        if ~isempty(idx_snap)
+            snapshot(idx_snap, :) = C_new.';
+        end
+
+        C_old = C_new;
+    end
+
+    fig = figure('Visible', 'off', 'Position', [100 100 1400 600]);
+    hold on;
+
+    legend_text = {};
+
+    for k = 1:length(n_plot)
+        if all(isnan(snapshot(k, :)))
+            continue;
+        end
+        plot(x_space, snapshot(k, :), 'LineWidth', 1.2);
+        legend_text{end + 1} = sprintf('n = %d', n_plot(k));
+    end
+
+    grid on;
+    xlabel('Ruang x (m)', 'FontSize', 12);
+    ylabel('Konsentrasi polutan (mg/L)', 'FontSize', 12);
+    title(sprintf('%s - Konsentrasi polutan terhadap ruang', scenario(s).nama), ...
+        'FontSize', 14, 'FontWeight', 'bold');
+
+    xlim([x_space(1), x_space(end)]);
+
+    y_max = max(snapshot(:), [], 'omitnan');
+    if isempty(y_max) || isnan(y_max) || y_max <= 0
+        ylim([0 1]);
+    else
+        ylim([0, y_max * 1.1]);
+    end
+
+    set(gca, 'FontSize', 11);
+
+    if ~isempty(legend_text)
+        legend(legend_text, 'Location', 'northwest', ...
+            'FontSize', 8, 'NumColumns', 2, 'Box', 'on');
+    end
+
+    hold off;
+
+    nama_file = sprintf('crank_nicolson_adveksi_difusi_ruang_diskontinu_skenario_%d.png', s);
+    saveas(fig, fullfile(folder_output, nama_file));
+    close(fig);
+
+    fprintf('%s selesai diproses.\n', scenario(s).nama);
+end
+
+fprintf('\nSemua skenario telah selesai diproses.\n');
