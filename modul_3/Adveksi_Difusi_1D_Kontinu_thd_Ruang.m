@@ -114,8 +114,8 @@ for s = 1:numel(scenario)
 
     snapshot = NaN(length(n_plot), Mmax);
 
-    C_old(:) = 0;
-    C_old(m_source) = C_source;
+    S = zeros(1, Mmax);
+    S(m_source) = C_source / dt;
 
     idx0 = find(n_plot == 0, 1);
     if ~isempty(idx0)
@@ -127,18 +127,17 @@ for s = 1:numel(scenario)
         C_old(1)    = C_old(2);
         C_old(Mmax) = C_old(Mmax - 1);
 
+        C_new = zeros(1, Mmax);
+
         for i = 2:(Mmax - 1)
             C_new(i) = C_old(i) ...
                      - (courant / 2) * (C_old(i + 1) - C_old(i - 1)) ...
-                     + alpha * (C_old(i + 1) - 2 * C_old(i) + C_old(i - 1));
+                     + alpha * (C_old(i + 1) - 2 * C_old(i) + C_old(i - 1)) ...
+                     + dt * S(i);
         end
 
         C_new(1)    = C_new(2);
         C_new(Mmax) = C_new(Mmax - 1);
-
-        C_new(m_source) = C_source;
-
-        C_new(C_new < 0) = 0;
 
         idx_snap = find(n_plot == n, 1);
         if ~isempty(idx_snap)
@@ -173,7 +172,7 @@ for s = 1:numel(scenario)
     if isempty(y_max) || isnan(y_max) || y_max <= 0
         ylim([0 1]);
     else
-        ylim([0, max(C_source * 1.2, y_max * 1.1)]);
+        ylim([0, y_max * 1.1]);
     end
 
     set(gca, 'FontSize', 11);
